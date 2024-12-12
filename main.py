@@ -1,7 +1,8 @@
 import board
 import neopixel
+import time
 
-NEOPIXEL_PIN = 1
+NEOPIXEL_PIN = board.D2
 LED_COUNT = 30
 
 pixels = neopixel.NeoPixel(board.NEOPIXEL, NEOPIXEL_PIN)
@@ -41,6 +42,8 @@ def loop():
         if h >= 360 or h < 0:
             delta *= -1
         h+=delta
-
         pixels[i] = set_color(h, s, v)
-        pixels.show()
+    pixels.show()
+while 1:
+    loop()
+    time.sleep(delay)
