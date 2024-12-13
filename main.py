@@ -1,17 +1,20 @@
 import board
 import neopixel
 import time
+import threading
+
+message = ""
 
 NEOPIXEL_PIN = board.D2
 LED_COUNT = 30
 
-pixels = neopixel.NeoPixel(board.NEOPIXEL, NEOPIXEL_PIN)
+pixels = neopixel.NeoPixel(NEOPIXEL_PIN, LED_COUNT)
 
-delay = 1
+delay = 0.05
 r, g, b, h = 0, 0, 0, 0
-delta = 3 #amount that the hue changes (hue determines which color it is)
+delta = 1 #amount that the hue changes (hue determines which color it is)
 # 0 <= h <= 360; 0 <= s, v<=1
-def set_color(H, S, V):
+def get_color(H, S, V):
     C = V * S
     X = C * (1-abs((int(H/60))%2-1))
     m = V - C
@@ -34,16 +37,38 @@ def constrain(x, min_val, max_val):
     return min(max(x, min_val), max_val)
 
 def loop():
+    global message
     global h
     global delta
-    s = 0.5 # saturation value
-    v = 0.5 # value
+    s = 1 # saturation value
+    v = 1 # value
     for i in range(LED_COUNT):
         if h >= 360 or h < 0:
             delta *= -1
         h+=delta
-        pixels[i] = set_color(h, s, v)
-    pixels.show()
-while 1:
-    loop()
-    time.sleep(delay)
+        if message == "OFF":
+            pixels[i] = (0,0,0)
+        else: 
+            set_led(pixels,i,h,s,v)
+
+def set_led(rpi, led, h_val, s_val, v_val):
+    rpi[led] = get_color(h_val,s_val,v_val)
+    
+def background_task():
+    while 1:
+        loop()
+        time.sleep(delay)
+
+def take_input():
+    global message
+    while 1:
+        message = input("Enter your command: ")
+        print("You entered:", message)
+
+if __name__ == "__main__":
+    background_thread = threading.Thread(target=background_task)
+    background_thread.daemon = True  # Make the thread a daemon so it exits when the main thread exits
+    background_thread.start()
+    take_input()
+
+
