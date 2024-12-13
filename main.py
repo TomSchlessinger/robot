@@ -5,7 +5,7 @@ import threading
 
 message = ""
 
-NEOPIXEL_PIN = board.D2
+NEOPIXEL_PIN = board.D18
 LED_COUNT = 30
 
 pixels = neopixel.NeoPixel(NEOPIXEL_PIN, LED_COUNT)
